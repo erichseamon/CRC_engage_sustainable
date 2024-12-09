@@ -156,58 +156,6 @@ barnard.test(13,5,95,370)
 
 \newpage
 
-## Chi Square Testing: solution proposed or not vs. computational model used or not? 
-
-Chi Square and Fishers Exact Test on the contingency table with solution proposed (solution/no solution) as the explanatory variable, and whether a computational model used (model/no model) as the response variable.
-
-**ChiSquare = .57: Fishers Exact Test Odds Ratio = .668: Independent**
-
-Both chi square and fishers exact test (FET) were insignificant/borderline, with a chi square approximation of ~.57, which is well below to the critical value (3.84 for one degree of freedom).  FET returned an odds ratio of under 1, therefore the null is accepted - the groups are independent.
-
-The FET defaults to associating the odds ratio (which can represent effect size) with the first cell. In this instance "The odds of having a solution is .67 times that for having a model".  You could flip the response and explanatory variables, but the odds ratio would stay the same.
-
-```{r, echo=FALSE}
-library(Barnard)
-
-crcdata$S_model_YN <- as.factor(crcdata$S_model_YN)
-
-crcdata$S_model_YN <- factor(crcdata$S_model_YN, levels = c("Y", "N"))
-
-crcdata_table <- table(crcdata$solution_proposed_YN, crcdata$S_model_YN)
-colnames(crcdata_table) <- c("M", "NM")
-
-crcdata_table <- rbind(crcdata_table[2,], crcdata_table[1,])
-#crcdata_table[2,] <- rev(crcdata_table[2,])
-
-
-solution_model <- 
- crcdata_table
-
- 
- # solution_model <- 
- #   as.matrix(
- #     read.table(text=
- #                  "  M     NM      
- #       S             11    7      
- #       NS            377   94",
- #                header=TRUE,
- #                row.names=1)
- #   )
-
-names(dimnames(solution_model)) <- c('solution','model')
-solution_model
-
-solution_model <- as.table(solution_model)
-
-summary(solution_model)
-
-fisher.test(solution_model)
-
-barnard.test(13,5,370,95)
-```
-
-\newpage
-
 # Summary Statistics Graphs
 
 ## Were solutions proposed in the set of all papers?
@@ -230,34 +178,8 @@ ggplot(crcdata,aes(x=solution_implemented_YN, fill=year)) + ggtitle("Solution Im
         axis.text.x = element_text(angle = 0, hjust = 1)) 
 
 ```
-\newpage
-
-## What were the solution types?
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-# par(mar = c(8,4,4,4))
-# plot3 <- barplot(colSums(crcdata[,4:10]), las=2, main="Solution Types: N=18", names.arg = c("Technological", "Policy", "Institutional", "Social", "Economic", "Ecological", "Educational"))
-
-plot3_data <- colSums(crcdata[,4:10])
-p3a <- as.data.frame(plot3_data)
-p3a$group <- c("Technological", "Policy", "Institutional", "Social", "Economic", "Ecological", "Educational")
-
-# 
-ggplot(p3a, aes(x=group, y=plot3_data)) + geom_bar(stat="identity",fill="#99CC99") + theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1)) +
-  xlab("Solution Types") + ylab("Count")
 
 
-```
-\newpage
-
-## Was a computational model used?
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-ggplot(crcdata,aes(x=S_model_YN, fill=year)) + ggtitle("Computational Model Used: Y=366") + labs(x="Was a computational model used?") +
-  geom_bar(stat = "count", position = "dodge", fill="#99CC99") + theme_minimal()
- 
-``` 
 \newpage
 
 ## Were stakeholders engaged?
@@ -301,12 +223,7 @@ dev.off()
 
 ```
 
-
-
 \newpage
-
-
-
 
 ## Level of stakeholder engagement by year - Ghodsvali scale
 
@@ -344,8 +261,6 @@ dev.off()
 
 
 ```
-
-
 
 \newpage
 
@@ -435,54 +350,8 @@ colnames(crcdata_stremove2011)[22] <- "Stakeholder Engagement"
 ggplot(crcdata_stremove2011, aes(fill=`Stakeholder Engagement`, x=year)) + 
     geom_bar(position="stack", stat="count")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + scale_x_continuous(breaks = crcdata_st$year) + guides(col=guide_legend("Stakeholder Engagement? Yes or No")) + scale_fill_manual(values = my_colors)
 
-
-
 ```
 
-\newpage
-
-<!-- ## Level of Stakeholder Engagement by Year - Local -->
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-#year
-
-# library(dplyr)
-# 
-# crcdata_new <- crcdata %>% 
-#   mutate(IAP2 = sprintf("%d_%d_%d_%d_%d_%d", STE_IAP2_data_gathering,STE_IAP2_inform,STE_IAP2_consult,STE_IAP2_involve,STE_IAP2_collab,STE_IAP2_empower))
-# 
-# crcdata_new <- crcdata_new[!(crcdata_new$IAP2 %in% "0_0_0_0_0_0"),]
-# 
-# library(dplyr)
-# crcdata_new <- crcdata_new %>%
-#     mutate(IAP2 = recode(IAP2, '1_0_0_0_0_0' = 'data gathering', '0_1_0_0_0_0' = 'inform', '0_0_1_0_0_0' =  'consult', '0_0_0_1_0_0' = 'involve',  '0_0_0_0_1_0' = 'collab', '0_0_0_0_0_1' =  'empower'))
-# 
-# ggplot(crcdata_new, aes(fill=IAP2, x=year)) + 
-#     geom_bar(position="stack", stat="count")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + scale_x_continuous(breaks = crcdata_new$year)
-
-
-```
-\newpage
-
-## Researcher types
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-#researcher
-df <- t(t(colSums(crcdata[,12:17])))
-df <- df[order(df[,1], decreasing = TRUE),]
-par(mar = c(6,4,4,4))
-#barplot(df, las=2, main = "Researcher Types")
-
-df <- data.frame(df)
-rownames(df) <- c("Engineering", "Physics", "Imterdisciplinary", "Computer Science", "Math", "NGO")
-df$group <- row.names(df)
-df$group <- factor(df$group, levels=c("Engineering", "Physics", "Imterdisciplinary", "Computer Science", "Math", "NGO"))
-
-ggplot(df, aes(x=group, y=df)) +
-    geom_bar(stat='identity', fill="#99CC99")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + guides(col=guide_legend("Researcher Types")) +labs(y= "Count", x = "Researcher Type")
-
-
-```
 \newpage
 
 ## Stakeholder types
@@ -505,6 +374,7 @@ ggplot(df, aes(x=group, y=df)) +
     geom_bar(stat='identity', fill="#99CC99")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + guides(col=guide_legend("Stakeholder Types")) +labs(y= "Count", x = "Stakeholder Type")
 
 ```
+
 \newpage
 
 ## Ghodsvali scale breakdown
@@ -540,6 +410,7 @@ ggplot(df, aes(x=group, y=df)) +
     geom_bar(stat='identity', fill="#99CC99")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + guides(col=guide_legend("Ghodsvali Scale Breakdown")) +labs(y= "Count", x = "Ghodsvali Scale")
 
 ```
+
 \newpage
 
 ## IAP2 scale breakdown
@@ -578,6 +449,7 @@ ggplot(df, aes(x=group, y=df)) +
 
 
 ```
+
 \newpage
 
 ## Local scale breakdown
@@ -619,43 +491,6 @@ ggplot(df, aes(x=group, y=df)) +
     geom_bar(stat='identity', fill="#99CC99")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + guides(col=guide_legend("Local Scale Breakdown")) +labs(y= "Count", x = "Local Scale")
 
 
-
-```
-\newpage
-
-## Geographic location breakdown
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#geography
-df <- t(t(colSums(crcdata[,52:57])))
-df <- df[order(df[,1], decreasing = TRUE),]
-par(mar = c(8,4,4,4))
-#barplot(df, las=2, main="Geographic Location Breakdown")
-
-
-
-
-df <- data.frame(df)
-rownames(df) <- c("Regional", "Local", "National", "No Geography", "Multinational", "Global")
-df$group <- row.names(df)
-library(dplyr)
-
-# create a vector with letters in the desired order
-#x <- c("Researcher", "Data Gathering",        "Inform",   "Envision", "Collaborative", "Empowered" )
-
-#df <- df %>%
-#  slice(match(x, group))
-
-
-
-#rownames(df) <- c("Transformative", "Representation", "Nominal", "Instrumental")
-#df$group <- row.names(df)
-#df <- c(df[3,], df[4,], df[2,], df[1,])
-df$group <- factor(df$group, levels=c("Regional", "Local", "National", "No Geography", "Multinational", "Global"))
-
-ggplot(df, aes(x=group, y=df)) +
-    geom_bar(stat='identity', fill="#99CC99")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + guides(col=guide_legend("Geography")) +labs(y= "Count", x = "Geography")
 
 ```
 
@@ -779,41 +614,6 @@ logistic.display(stakeholder_vs_solutions)
 
 ```
 
-
-\newpage
-
-## Use of computational model vs. solution - regression testing
-
-Regression of whether a computational model was used predicts if a solution was proposed (Y/N)
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#Use of computational model vs. solutions
-
-model_vs_solutions <-glm(solution_proposed_YN ~S_model_YN,family=binomial,data=crcdata)
-
-summary(model_vs_solutions)
-logistic.display(model_vs_solutions)
-
-```
-
-
-\newpage
-
-## Use of computational model vs. solution - odds
-
-Odds of whether a computational model was used predicts if a solution was proposed (Y/N)
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#Use of computational model vs. solutions
-
-model_vs_solutions <-glm(solution_proposed_YN ~S_model_YN,family=binomial,data=crcdata)
-
-#summary(model_vs_solutions)
-logistic.display(model_vs_solutions)
-
-```
 \newpage
 
 ## Diversity of stakeholders vs solution
@@ -870,63 +670,6 @@ summary(stratio_vs_solutions)
 
 ```
 
-\newpage
-## Diversity of researchers vs solution - regression testing
-
-Regression of whether Diversity of researchers predicts if a solution was proposed (Y/N). In order to represent diversity, we have used a simple ratio calculation which sums the number of researcher types involved, divided by the total number of possible researcher options.  A ratio which is closer to 1 has a greater level of researcher diversity.
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#Diversity of researchers vs solutions (using ratio)
-
-
-crcdata$R_ratio <- rowSums(crcdata[,12:21])/10
-
-rratio_vs_solutions <-glm(solution_proposed_YN ~ R_ratio,family=binomial,data=crcdata)
-
-summary(rratio_vs_solutions)
-#logistic.display(rratio_vs_solutions)
-
-```
-
-
-\newpage
-## Diversity of researchers vs solution - odds
-
-Odds of whether Diversity of researchers predicts if a solution was proposed (Y/N). In order to represent diversity, we have used a simple ratio calculation which sums the number of researcher types involved, divided by the total number of possible researcher options.  A ratio which is closer to 1 has a greater level of researcher diversity.
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#Diversity of researchers vs solutions (using ratio)
-
-
-crcdata$R_ratio <- rowSums(crcdata[,12:21])/10
-
-rratio_vs_solutions <-glm(solution_proposed_YN ~ R_ratio,family=binomial,data=crcdata)
-
-#summary(rratio_vs_solutions)
-logistic.display(rratio_vs_solutions)
-
-```
-
-
-<!-- ## Interdisciplinary Researchers vs Solution - Regression Testing -->
-
-<!-- In order to accurately reflect diversity of researchers, we run a binomial logistic regression of the interdisciplinary researchers category to assess predictability on stakeholder solution (Y/N). -->
-
-<!-- ```{r echo=FALSE, warning=FALSE, message=FALSE} -->
-
-<!-- #Diversity of researchers vs solutions (using ratio) -->
-
-
-<!-- crcdata$R_ratio <- rowSums(crcdata[,12:21])/10 -->
-
-<!-- rratio_vs_solutions <-glm(solution_proposed_YN ~ R_interdis,family=binomial,data=crcdata) -->
-
-<!-- summary(rratio_vs_solutions) -->
-<!-- #logistic.display(rratio_vs_solutions) -->
-
-<!-- ``` -->
 
 \newpage
 
@@ -942,17 +685,6 @@ summary(ST_engagement)
 
 
 ```
-<!-- \newpage -->
-<!-- ## Stakeholder type vs level of engagement (Ghodsvali) -->
-<!-- ) -->
-<!-- ```{r echo=FALSE, warning=FALSE, message=FALSE} -->
-
-<!-- #stakeholder type vs level of engagement ghodsvali -->
-
-<!-- ST_engagement_ghodsvali<-lm(cbind(ST_farmers,ST_combined_gov,ST_tribal,ST_combined_coalition,ST_combined_industry,ST_migrants,ST_youth,ST_public,ST_university,ST_experts)~STE_G_nominal+STE_G_instrumental+STE_G_representation+STE_G_transformative,data=crcdata) -->
-
-
-<!-- ``` -->
 
 \newpage
 
@@ -997,94 +729,5 @@ summary(ST_solution)
 
 ```
 
-\newpage
-
-## Geographic area vs solution - regression testing
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#geographic area vs solution
-
-geog_solution <- glm(solution_proposed_YN~G_notdescribed+G_local+G_regional+G_national+G_multination+G_global, family=binomial, data=crcdata)
-summary(geog_solution)
-logistic.display(geog_solution)
 
 
-```
-
-\newpage
-
-## Geographic area vs solution - odds
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#geographic area vs solution
-
-logistic.display(geog_solution)
-
-
-```
-
-\newpage
-
-## stakeholder type vs geographic area
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#geographic area vs solution
-
-geog_stakeholdertype <- lm(cbind(ST_farmers,ST_combined_gov,ST_tribal,ST_combined_coalition,ST_combined_industry,ST_migrants,ST_youth,ST_public,ST_university,ST_experts)~G_notdescribed+G_local+G_regional+G_national+G_multination+G_global, data=crcdata)
-
-summary(geog_stakeholdertype)
-
-```
-
-\newpage
-
-## Geographic area vs engagment (Ghodsvali)
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-#geographic area vs solution
-
-geog_engagment_ghodsvali <- lm(cbind(G_notdescribed,G_local,G_regional,G_national,G_multination,G_global)~STE_G_nominal+STE_G_instrumental+STE_G_representation+STE_G_transformative, data=crcdata)
-
-summary(geog_engagment_ghodsvali)
-
-```
-\newpage
-
-## Geographic area vs engagment (IAP2)
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-
-geog_engagment_IAP2 <- lm(cbind(G_notdescribed,G_local,G_regional,G_national,G_multination,G_global)~STE_IAP2_data_gathering+STE_IAP2_inform+STE_IAP2_consult+STE_IAP2_involve+STE_IAP2_collab+STE_IAP2_empower, data=crcdata)
-
-summary(geog_engagment_IAP2)
-
-```
-\newpage
-
-## Geographic area vs engagment (local)
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-
-geog_engagment_local <- lm(cbind(G_notdescribed,G_local,G_regional,G_national,G_multination,G_global)~SC_researcher+SC_datagathering+SC_inform+SC_perspectives+SC_plan+SC_identify+SC_envision+SC_implement, data=crcdata)
-
-summary(geog_engagment_local)
-
-```
-
-
-\newpage
-
-## Geographic area vs engagment (local)
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-
-
-geog_engagment_local <- lm(cbind(G_notdescribed,G_local,G_regional,G_national,G_multination,G_global)~SC_researcher+SC_datagathering+SC_inform+SC_perspectives+SC_plan+SC_identify+SC_envision+SC_implement, data=crcdata)
-
-summary(geog_engagment_local)
-
-```
